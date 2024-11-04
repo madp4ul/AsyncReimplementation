@@ -1,20 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+﻿using System.Runtime.CompilerServices;
 
 namespace AsyncReimplementation;
+
 public class Promise<T>
 {
-    private T result;
-    private Exception exception;
+    private T result = default!;
+    private Exception exception = null!;
     private bool isResolved;
     private bool isRejected;
-    private List<Action<T>> successCallbacks = new List<Action<T>>();
-    private List<Action<Exception>> errorCallbacks = new List<Action<Exception>>();
+    private readonly List<Action<T>> successCallbacks = new();
+    private readonly List<Action<Exception>> errorCallbacks = new();
+    private readonly List<Action> finallyCallbacks = new();
 
     public Promise(Action<Action<T>, Action<Exception>> executor)
     {
@@ -30,8 +26,7 @@ public class Promise<T>
 
     private void Resolve(T value)
     {
-        if (isResolved || isRejected)
-            return;
+        if (isResolved || isRejected) return;
 
         isResolved = true;
         result = value;
@@ -39,12 +34,12 @@ public class Promise<T>
         {
             callback(result);
         }
+        InvokeFinally();
     }
 
     private void Reject(Exception ex)
     {
-        if (isResolved || isRejected)
-            return;
+        if (isResolved || isRejected) return;
 
         isRejected = true;
         exception = ex;
@@ -52,6 +47,7 @@ public class Promise<T>
         {
             callback(exception);
         }
+        InvokeFinally();
     }
 
     public Promise<T> Then(Action<T> onResolved)
@@ -101,6 +97,27 @@ public class Promise<T>
         return this;
     }
 
+    public Promise<T> Finally(Action onFinally)
+    {
+        if (isResolved || isRejected)
+        {
+            onFinally();
+        }
+        else
+        {
+            finallyCallbacks.Add(onFinally);
+        }
+        return this;
+    }
+
+    private void InvokeFinally()
+    {
+        foreach (var callback in finallyCallbacks)
+        {
+            callback();
+        }
+    }
+
     public static implicit operator Task<T>(Promise<T> promise)
     {
         var tcs = new TaskCompletionSource<T>();
@@ -121,5 +138,49 @@ public class Promise<T>
            .Catch(ex => tcs.SetException(ex));
 
         return tcs.Task.GetAwaiter();
+    }
+}
+
+public class Promise
+{
+    public static Promise<List<T>> All<T>(IEnumerable<Promise<T>> promises)
+    {
+        return new Promise<List<T>>((resolve, reject) =>
+        {
+            var promiseList = promises.ToList();  // Convert to list to access by index
+            var results = new T[promiseList.Count]; // Array to store results in order
+            int completedCount = 0;
+
+            for (int i = 0; i < promiseList.Count; i++)
+            {
+                int index = i;  // Capture the current index for the closure
+
+                promiseList[index]
+                    .Then(result =>
+                    {
+                        results[index] = result; // Store result at the correct index
+                        completedCount++;
+
+                        if (completedCount == promiseList.Count)
+                        {
+                            resolve(results.ToList()); // Convert array to list and resolve
+                        }
+                    })
+                    .Catch(reject);  // Reject if any promise fails
+            }
+        });
+    }
+
+    public static Promise<T> Race<T>(IEnumerable<Promise<T>> promises)
+    {
+        return new Promise<T>((resolve, reject) =>
+        {
+            foreach (var promise in promises)
+            {
+                promise
+                    .Then(resolve)
+                    .Catch(reject);
+            }
+        });
     }
 }

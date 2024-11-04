@@ -10,7 +10,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace AsyncReimplementation;
 public static class Fetch
 {
-    public static Promise<string> FetchAsync(string url)
+    public static Promise<string> FetchPromise(string url)
     {
         return new Promise<string>((resolve, reject) =>
         {
@@ -35,28 +35,20 @@ public static class Fetch
 
     private static Socket CreateSocket(IPAddress ip, int port, Action<Exception> reject)
     {
-        try
+        Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        socket.BeginConnect(new IPEndPoint(ip, port), ar =>
         {
-            Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            socket.BeginConnect(new IPEndPoint(ip, port), ar =>
+            try
             {
-                try
-                {
-                    socket.EndConnect(ar);
-                }
-                catch (Exception ex)
-                {
-                    reject(ex);
-                    socket.Close();
-                }
-            }, null);
-            return socket;
-        }
-        catch (Exception ex)
-        {
-            reject(ex);
-            return null;
-        }
+                socket.EndConnect(ar);
+            }
+            catch (Exception ex)
+            {
+                reject(ex);
+                socket.Close();
+            }
+        }, null);
+        return socket;
     }
 
     private static void StartRequest(Socket socket, Uri uri, string host, Action<string> resolve, Action<Exception> reject)
@@ -72,9 +64,7 @@ public static class Fetch
     }
 
     private static string BuildHttpRequest(Uri uri, string host)
-    {
-        return $"GET {uri.PathAndQuery} HTTP/1.1\r\nHost: {host}\r\nConnection: close\r\n\r\n";
-    }
+        => $"GET {uri.PathAndQuery} HTTP/1.1\r\nHost: {host}\r\nConnection: close\r\n\r\n";
 
     private static void ReceiveResponse(Socket socket, byte[] buffer, StringBuilder responseBuilder, Action<string> resolve, Action<Exception> reject)
     {

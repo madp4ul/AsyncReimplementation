@@ -29,16 +29,16 @@ public class Example
 
     public static void HttpRequestPromiseVoid()
     {
-        Fetch.FetchAsync("http://www.example.com")
+        Fetch.FetchPromise("http://www.example.com")
             .Then(response =>
             {
                 Console.WriteLine("First request response:\n" + response);
-                return Fetch.FetchAsync("http://www.example.org"); // Second request after the first completes
+                return Fetch.FetchPromise("http://www.example.org"); // Second request after the first completes
             })
             .Then(response =>
             {
                 Console.WriteLine("Second request response:\n" + response);
-                return Fetch.FetchAsync("http://www.example.net"); // Third request after the second completes
+                return Fetch.FetchPromise("http://www.example.net"); // Third request after the second completes
             })
             .Then(response =>
             {
@@ -49,16 +49,16 @@ public class Example
 
     public static Promise<string> HttpRequestPromise()
     {
-        return Fetch.FetchAsync("http://www.example.com")
+        return Fetch.FetchPromise("http://www.example.com")
             .Then(response =>
             {
                 Console.WriteLine("First request response:\n" + response);
-                return Fetch.FetchAsync("http://www.example.org"); // Second request after the first completes
+                return Fetch.FetchPromise("http://www.example.org"); // Second request after the first completes
             })
             .Then(response =>
             {
                 Console.WriteLine("Second request response:\n" + response);
-                return Fetch.FetchAsync("http://www.example.net"); // Third request after the second completes
+                return Fetch.FetchPromise("http://www.example.net"); // Third request after the second completes
             })
             .Then(response =>
             {
@@ -71,13 +71,13 @@ public class Example
     {
         try
         {
-            var response1 = await Fetch.FetchAsync("http://www.example.com");
+            var response1 = await Fetch.FetchPromise("http://www.example.com");
             Console.WriteLine("First request response:\n" + response1);
 
-            var response2 = await Fetch.FetchAsync("http://www.example.org");
+            var response2 = await Fetch.FetchPromise("http://www.example.org");
             Console.WriteLine("Second request response:\n" + response2);
 
-            var response3 = await Fetch.FetchAsync("http://www.example.net");
+            var response3 = await Fetch.FetchPromise("http://www.example.net");
             Console.WriteLine("Third request response:\n" + response3);
         }
         catch (Exception ex)
@@ -90,13 +90,13 @@ public class Example
     {
         try
         {
-            var response1 = await Fetch.FetchAsync("http://www.example.com");
+            var response1 = await Fetch.FetchPromise("http://www.example.com");
             Console.WriteLine("First request response:\n" + response1);
 
-            var response2 = await Fetch.FetchAsync("http://www.example.org");
+            var response2 = await Fetch.FetchPromise("http://www.example.org");
             Console.WriteLine("Second request response:\n" + response2);
 
-            var response3 = await Fetch.FetchAsync("http://www.example.net");
+            var response3 = await Fetch.FetchPromise("http://www.example.net");
             Console.WriteLine("Third request response:\n" + response3);
         }
         catch (Exception ex)
