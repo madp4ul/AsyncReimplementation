@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AsyncReimplementation;
-public static class SimpleFetch
+public static class Fetch
 {
-    public static Promise<string> Fetch(string url)
+    public static Promise<string> FetchAsync(string url)
     {
         return new Promise<string>((resolve, reject) =>
         {
