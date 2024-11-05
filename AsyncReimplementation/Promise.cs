@@ -6,8 +6,9 @@ public class Promise<T>
 {
     private T result = default!;
     private Exception exception = null!;
-    private bool isResolved;
-    private bool isRejected;
+    public bool IsResolved { get; private set; }
+    public bool IsRejected { get; private set; }
+    public bool IsCompleted => IsResolved || IsRejected;
     private readonly List<Action<T>> successCallbacks = new();
     private readonly List<Action<Exception>> errorCallbacks = new();
     private readonly List<Action> finallyCallbacks = new();
@@ -26,9 +27,9 @@ public class Promise<T>
 
     private void Resolve(T value)
     {
-        if (isResolved || isRejected) return;
+        if (IsResolved || IsRejected) return;
 
-        isResolved = true;
+        IsResolved = true;
         result = value;
         foreach (var callback in successCallbacks)
         {
@@ -39,10 +40,20 @@ public class Promise<T>
 
     private void Reject(Exception ex)
     {
-        if (isResolved || isRejected) return;
+        if (IsResolved || IsRejected) return;
 
-        isRejected = true;
-        exception = ex;
+        IsRejected = true;
+
+        try
+        {
+            throw ex;
+        }
+        catch
+        {
+            // set stacktrace
+            exception = ex;
+        }
+
         foreach (var callback in errorCallbacks)
         {
             callback(exception);
@@ -52,11 +63,11 @@ public class Promise<T>
 
     public Promise<T> Then(Action<T> onResolved)
     {
-        if (isResolved)
+        if (IsResolved)
         {
             onResolved(result);
         }
-        else if (!isRejected)
+        else if (!IsRejected)
         {
             successCallbacks.Add(onResolved);
         }
@@ -86,11 +97,11 @@ public class Promise<T>
 
     public Promise<T> Catch(Action<Exception> onRejected)
     {
-        if (isRejected)
+        if (IsRejected)
         {
             onRejected(exception);
         }
-        else if (!isResolved)
+        else if (!IsResolved)
         {
             errorCallbacks.Add(onRejected);
         }
@@ -99,7 +110,7 @@ public class Promise<T>
 
     public Promise<T> Finally(Action onFinally)
     {
-        if (isResolved || isRejected)
+        if (IsResolved || IsRejected)
         {
             onFinally();
         }
@@ -118,26 +129,9 @@ public class Promise<T>
         }
     }
 
-    public static implicit operator Task<T>(Promise<T> promise)
+    public PromiseAwaiter<T> GetAwaiter()
     {
-        var tcs = new TaskCompletionSource<T>();
-
-        // Set up the promise to complete the TaskCompletionSource when resolved or rejected
-        promise.Then(result => tcs.SetResult(result))
-               .Catch(ex => tcs.SetException(ex));
-
-        return tcs.Task;
-    }
-
-    public TaskAwaiter<T> GetAwaiter()
-    {
-        var tcs = new TaskCompletionSource<T>();
-
-        // Complete the TaskCompletionSource based on the promise's outcome
-        Then(result => tcs.SetResult(result))
-           .Catch(ex => tcs.SetException(ex));
-
-        return tcs.Task.GetAwaiter();
+        return new PromiseAwaiter<T>(this);
     }
 }
 
