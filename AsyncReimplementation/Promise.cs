@@ -137,6 +137,11 @@ public class Promise<T>
 
 public class Promise
 {
+    public static Promise<T> FromResult<T>(T result)
+    {
+        return new Promise<T>((resolve, reject) => resolve(result));
+    }
+
     public static Promise<List<T>> All<T>(IEnumerable<Promise<T>> promises)
     {
         return new Promise<List<T>>((resolve, reject) =>

@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsyncReimplementation", "AsyncReimplementation\AsyncReimplementation.csproj", "{5793337B-9E1F-4E78-8696-DFAE60C1610D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AsyncReimplementation", "AsyncReimplementation\AsyncReimplementation.csproj", "{5793337B-9E1F-4E78-8696-DFAE60C1610D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Examples", "Examples\Examples.csproj", "{9242E531-81FB-4F21-BAEC-7180483F89EB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{5793337B-9E1F-4E78-8696-DFAE60C1610D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5793337B-9E1F-4E78-8696-DFAE60C1610D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5793337B-9E1F-4E78-8696-DFAE60C1610D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9242E531-81FB-4F21-BAEC-7180483F89EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9242E531-81FB-4F21-BAEC-7180483F89EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9242E531-81FB-4F21-BAEC-7180483F89EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9242E531-81FB-4F21-BAEC-7180483F89EB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
